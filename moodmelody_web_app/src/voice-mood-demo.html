@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MoodMelody Voice Mood Detection Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      color: #FFF;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+    .card {
+      background: #18191D;
+      border-radius: 18px;
+      box-shadow: 0 8px 38px -8px #23252633;
+      padding: 38px 32px 30px 32px;
+      max-width: 390px;
+      width: 95vw;
+      text-align: center;
+      position: relative;
+    }
+    h1 { margin-top: 0; margin-bottom: 0.4em; font-size: 2.1rem; }
+    .subtitle {
+      color: #F76B8A;
+      font-weight: 600;
+      margin-top: 4px; margin-bottom: 18px;
+      font-size: 1.08rem;
+      letter-spacing: 0.07em;
+    }
+    #transcript {
+      color: #FBD46D;
+      margin: 20px 0 13px 0; 
+      font-size: 1.08em;
+      font-weight: 500;
+      min-height: 32px;
+    }
+    .btn {
+      background: linear-gradient(90deg, #FBD46D 58%, #F76B8A 94%);
+      color: #232526;
+      font-weight: bold;
+      font-size: 1.12em;
+      border: none;
+      border-radius: 7px;
+      padding: 13px 0;
+      width: 100%;
+      cursor: pointer;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+      transition: background 0.2s;
+      box-shadow: 0 1px 6px #FBD46D25;
+    }
+    .btn:active { opacity: 0.92; }
+    .mood-result {
+      margin: 20px 0 7px 0;
+      font-size: 1.34em;
+      font-weight: 700;
+      color: #FBD46D;
+      letter-spacing: 0.07em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .emoji {
+      font-size: 2.4em;
+      margin-bottom: 6px;
+    }
+    .msg {
+      color: #fffcee;
+      font-size: 1.13em;
+      margin-bottom: 17px;
+      font-weight: 400;
+      min-height: 32px;
+    }
+    .video-embed {
+      margin: 12px 0 7px 0;
+      border-radius: 11px;
+      overflow: hidden;
+      box-shadow: 0 0px 8px #FBD46D1f;
+      border: 2.3px solid #FBD46D;
+      background: #161718;
+    }
+    .err {
+      color: #F76B8A;
+      font-size: 1.01em;
+      font-weight: 500;
+      margin-bottom: 7px;
+    }
+    .footer {
+      margin-top: 28px;
+      color: #FBD46D;
+      opacity: 0.77;
+      font-size: 0.97em;
+      letter-spacing: 0.03em;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>MoodMelody</h1>
+    <div class="subtitle">Voice Mood Detection Demo</div>
+    <button id="voiceBtn" class="btn">🎤 Use Voice Input</button>
+    <div id="transcript"></div>
+    <div id="resultArea"></div>
+    <div class="footer">Try describing your mood out loud – e.g. "I feel happy and excited" or "I'm a bit stressed and worried."</div>
+  </div>
+  <script>
+    // --- Configurable mappings for demo ---
+    const moodKeywordMap = {
+      "Happy": ["happy", "joy", "sunny", "excited", "cheerful", "good", "blessed", "smile", "amazing", "great", "wonderful", "optimistic", "awesome", "satisfied"],
+      "Sad":   ["sad", "unhappy", "down", "gloomy", "cry", "depress", "blue", "broken", "despair", "hopeless", "disappoint"],
+      "Stressed": ["stressed", "anxious", "overwhelmed", "worried", "tense", "pressure", "nervous", "busy"],
+      "Angry": ["angry", "mad", "furious", "upset", "frustrated", "irritated", "annoyed", "rage"],
+      "Neutral": ["okay", "fine", "normal", "so-so", "indifferent", "meh", "average", "alright", "calm"]
+    };
+
+    const moodEmojis = {
+      "Happy": "🌞",
+      "Sad": "😭",
+      "Stressed": "🌲",
+      "Angry": "😡",
+      "Neutral": "😐"
+    };
+
+    const moodMessages = {
+      "Happy": "You're shining bright! Enjoy this upbeat song! 🎉",
+      "Sad": "It's okay to feel down sometimes. Here’s a comforting tune.",
+      "Stressed": "Take a deep breath – this song may help you relax.",
+      "Angry": "Let’s turn that anger into energy. Rock out with this!",
+      "Neutral": "Staying balanced? Here’s something chill for your vibe."
+    };
+
+    // Every mood: 3 YouTube IDs (samples, safe for demo)
+    const moodToYouTubeIDs = {
+      "Happy": [
+        "ZbZSe6N_BXs", // Pharrell Williams – Happy
+        "HgzGwKwLmgM", // Queen – Don’t Stop Me Now
+        "y6Sxv-sUYtM"  // Mark Ronson ft. Bruno Mars – Uptown Funk
+      ],
+      "Sad": [
+        "RgKAFK5djSk", // Wiz Khalifa ft. Charlie Puth – See You Again
+        "hLQl3WQQoQ0", // Adele – Someone Like You
+        "9bZkp7q19f0"  // PSY – Gangnam Style (ironically sad, for demo variety)
+      ],
+      "Stressed": [
+        "vKJ7Hkrr7zQ", // Coldplay – Fix You
+        "bwAWN-BWRnA", // Lewis Capaldi – Someone You Loved
+        "hoNb6HuNmU0"  // Adele – Someone Like You
+      ],
+      "Angry": [
+        "fJ9rUzIMcZQ", // Queen – Bohemian Rhapsody
+        "hTWKbfoikeg", // Nirvana – Smells Like Teen Spirit
+        "ktvTqknDobU"  // Imagine Dragons – Radioactive
+      ],
+      "Neutral": [
+        "7E9Ed9DUQoI", // Vance Joy – Riptide
+        "JGwWNGJdvx8", // Ed Sheeran – Shape Of You
+        "kXYiU_JCYtU"  // Linkin Park – Numb
+      ]
+    };
+
+    // --- Speech Recognition code ---
+    const transcriptDiv = document.getElementById("transcript");
+    const resultArea = document.getElementById("resultArea");
+    const voiceBtn = document.getElementById("voiceBtn");
+
+    let recognizing = false;
+    let recognition;
+
+    function resetResultUI() {
+      transcriptDiv.textContent = "";
+      resultArea.innerHTML = "";
+    }
+
+    function getMoodFromTranscript(text) {
+      // Lowercase and tokenize
+      const lower = text.toLowerCase();
+      // Count matches for each mood, return the one with most hits (priority: Happy > Sad > Stressed > Angry > Neutral > default)
+      const scores = {};
+      Object.keys(moodKeywordMap).forEach(mood => {
+        moodKeywordMap[mood].forEach(kw => {
+          // Use word boundary, but allow substring match for common missings
+          if (lower.includes(kw)) {
+            scores[mood] = (scores[mood] || 0) + 1;
+          }
+        });
+      });
+      // Pick the mood(s) with highest score. If tie or no hit, use order: Happy/Sad/Stressed/Angry/Neutral or default.
+      const bestMoods = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+      if (bestMoods.length > 0) {
+        return bestMoods[0];
+      }
+      return "Neutral";
+    }
+
+    function getRandomYouTubeId(mood) {
+      const arr = moodToYouTubeIDs[mood] || [];
+      if (arr.length === 0) return null;
+      const idx = Math.floor(Math.random() * arr.length);
+      return arr[idx];
+    }
+
+    function showResult(mood, transcript) {
+      const emoji = moodEmojis[mood] || "🙂";
+      const msg = moodMessages[mood] || "Here's a song for you!";
+      const ytId = getRandomYouTubeId(mood);
+      let html = `<div class="mood-result">
+          <div class="emoji">${emoji}</div>
+          <div>${mood}</div>
+      </div>
+      <div class="msg">${msg}</div>`;
+
+      if (ytId) {
+        html += `<div class="video-embed">
+          <iframe width="340" height="210"
+            src="https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0"
+            frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen title="Mood YouTube player"></iframe>
+        </div>`;
+      } else {
+        html += `<div class="err">No song found for mood!</div>`;
+      }
+      resultArea.innerHTML = html;
+    }
+
+    function startRecognition() {
+      resetResultUI();
+      // Fallback to webkit for most browsers
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        transcriptDiv.innerHTML = '<span class="err">Sorry, Web Speech API not supported on this browser.</span>';
+        return;
+      }
+      recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognizing = true;
+      voiceBtn.textContent = '🎤 Listening... (speak now)';
+      voiceBtn.disabled = true;
+
+      recognition.onstart = function() {
+        transcriptDiv.textContent = "Listening...";
+      };
+
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        transcriptDiv.textContent = `You said: "${transcript}"`;
+        const mood = getMoodFromTranscript(transcript);
+        showResult(mood, transcript);
+      };
+
+      recognition.onerror = function(event) {
+        transcriptDiv.innerHTML = `<span class="err">Error: ${event.error}</span>`;
+        recognizing = false;
+        voiceBtn.textContent = '🎤 Use Voice Input';
+        voiceBtn.disabled = false;
+      };
+
+      recognition.onend = function() {
+        recognizing = false;
+        voiceBtn.textContent = '🎤 Use Voice Input';
+        voiceBtn.disabled = false;
+      };
+
+      recognition.start();
+    }
+
+    // Button click event handler
+    voiceBtn.addEventListener('click', function() {
+      startRecognition();
+    });
+  </script>
+</body>
+</html>
