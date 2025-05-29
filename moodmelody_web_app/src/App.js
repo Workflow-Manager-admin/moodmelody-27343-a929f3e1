@@ -234,6 +234,12 @@ function App() {
   const [resultMood, setResultMood] = useState(null); // The detected mood object after quiz
   const [resultSong, setResultSong] = useState(null); // Randomly chosen song for mood
 
+  // State for mood history for rendering, array of {mood, timestamp}
+  const [moodHistory, setMoodHistory] = useState([]);
+
+  // State for current background CSS (dynamic)
+  const [bgStyle, setBgStyle] = useState({ background: 'var(--moodmelody-primary)' });
+
   // PUBLIC_INTERFACE
   // Handle answer selection
   function handleSelect(qIdx, ansIdx) {
@@ -254,6 +260,15 @@ function App() {
     setScore(totalScore);
     setResultMood(mood);
     setResultSong(song);
+
+    // Store mood in localStorage & refresh mood history
+    const updatedHistory = storeMoodToHistory(mood.name);
+    setMoodHistory(updatedHistory);
+
+    // Change background to match mood
+    const bg = getBackgroundForMood(mood.name);
+    setBgStyle({ background: bg, transition: "background 0.8s" });
+    document.body.style.background = bg;
     setStep(1);
   }
 
@@ -266,21 +281,50 @@ function App() {
     setScore(null);
     setResultMood(null);
     setResultSong(null);
+
+    // On retry, reset bg to most recent mood if available (else default)
+    if (moodHistory.length > 0) {
+      const latestMood = moodHistory[moodHistory.length - 1]?.mood;
+      if (latestMood) {
+        const bg = getBackgroundForMood(latestMood);
+        setBgStyle({ background: bg, transition: "background 0.8s" });
+        document.body.style.background = bg;
+      }
+    } else {
+      setBgStyle({ background: 'var(--moodmelody-primary)' });
+      document.body.style.background = 'var(--moodmelody-primary)';
+    }
   }
 
-  // UI THEME: colors to CSS variables
+  // On initial mount: load last 7 moods and set background accordingly
   React.useEffect(() => {
-    // Override CSS variables for theme
+    // Override CSS variables for theme system-wide
     document.documentElement.style.setProperty('--moodmelody-primary', '#0c0e0e');
     document.documentElement.style.setProperty('--moodmelody-secondary', '#FBD46D');
     document.documentElement.style.setProperty('--moodmelody-accent', '#F76B8A');
-    // Set card bg and text contrast based on auto theme preference
-    document.body.style.background = 'var(--moodmelody-primary)';
+
+    // Load and set mood history (if any)
+    const stored = getMoodHistory();
+    setMoodHistory(stored);
+    // Set initial background based on last known mood, else default
+    if (stored.length > 0) {
+      const lastMood = stored[stored.length - 1]?.mood;
+      const bg = getBackgroundForMood(lastMood);
+      setBgStyle({ background: bg, transition: "background 0.8s" });
+      document.body.style.background = bg;
+    } else {
+      setBgStyle({ background: 'var(--moodmelody-primary)' });
+      document.body.style.background = 'var(--moodmelody-primary)';
+    }
+    // Cleanup: on unmount, reset bg
+    return () => {
+      document.body.style.background = 'var(--moodmelody-primary)';
+    };
   }, []);
 
   // MAIN RENDER
   return (
-    <div className="app" style={{ minHeight: "100vh", background: 'var(--moodmelody-primary)' }}>
+    <div className="app" style={{ minHeight: "100vh", ...bgStyle }}>
       <nav className="navbar" style={{ background: 'var(--moodmelody-primary)' }}>
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
