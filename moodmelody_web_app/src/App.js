@@ -167,7 +167,7 @@ const moodData = [
 ];
 
 // PUBLIC_INTERFACE
-// Mapping moods to an array of YouTube song choices. Add more as needed!
+// Mapping moods to an array of YouTube song choices.
 const moodToSongs = {
   Happy: [
     { youtubeId: "ZbZSe6N_BXs", title: "Pharrell Williams – Happy" },
@@ -204,6 +204,15 @@ function getRandomSongForMood(mood) {
   return songs[idx];
 }
 
+// PUBLIC_INTERFACE
+// Updated: videoMap (pruned) - mood maps directly to an array of YouTube video IDs
+const videoMap = {
+  Happy: ["ZbZSe6N_BXs", "HgzGwKwLmgM", "y6Sxv-sUYtM", "LsoLEjrDogU"],
+  Neutral: ["7E9Ed9DUQoI", "JGwWNGJdvx8", "kXYiU_JCYtU"],
+  Stressed: ["vKJ7Hkrr7zQ", "bwAWN-BWRnA", "hoNb6HuNmU0"],
+  "Sad/Angry": ["RgKAFK5djSk", "fJ9rUzIMcZQ", "hLQl3WQQoQ0"]
+};
+
 // Shuffle utility (Fisher-Yates)
 function shuffleArray(arr) {
   const array = [...arr];
@@ -219,7 +228,6 @@ function shuffleArray(arr) {
  * Validate a YouTube video ID (client-side only: syntax, length, allowed chars).
  * This DOES NOT check embargoed/private/region/embeddability status.
  * Returns true if the ID is well-formed for YouTube public/embeddable videos.
- * See: https://webapps.stackexchange.com/questions/54443/format-for-id-of-youtube-video
  */
 function isValidYouTubeId(id) {
   // YouTube IDs are typically 11 chars, [A-Za-z0-9_-]
@@ -238,86 +246,7 @@ function detectMood(totalScore) {
 }
 
 function App() {
-  // Age group and language options
-  const ageGroupOptions = ['Under 13', '13–18', '19–25', '26–35', '36+'];
-  const languageOptions = ['English'];
-
-  // Pruned videoMap: only English retained for each mood
-  const videoMap = {
-    Happy: {
-      English: {
-        'Under 13': ['ZbZSe6N_BXs', 'HvWUMvFQk_s'],
-        '13–18':    ['HgzGwKwLmgM', 'y6Sxv-sUYtM'],
-        '19–25':    ['LsoLEjrDogU', 'Fp8msa5uYsc'],
-        '26–35':    ['d-diB65scQU'],
-        '36+':      ['9bZkp7q19f0']
-      }
-    },
-    Excited: {
-      English: {
-        'Under 13': ['y6Sxv-sUYtM'],
-        '13–18':    ['HgzGwKwLmgM', 'fJ9rUzIMcZQ'],
-        '19–25':    ['ktvTqknDobU','LsoLEjrDogU'],
-        '26–35':    ['Fp8msa5uYsc'],
-        '36+':      ['d-diB65scQU']
-      }
-    },
-    Angry: {
-      English: {
-        '13–18': ['hTWKbfoikeg', 'fJ9rUzIMcZQ'], // Nirvana, Queen
-        '19–25': ['ktvTqknDobU'], // Imagine Dragons
-        '26–35': ['hLQl3WQQoQ0'], // Adele (as power ballad)
-        '36+':   ['fJ9rUzIMcZQ']
-      }
-    },
-    Bored: {
-      English: {
-        'Under 13': ['JGwWNGJdvx8'],
-        '13–18': ['7E9Ed9DUQoI'],
-        '19–25': ['kXYiU_JCYtU'],
-        '26–35': ['d-diB65scQU'],
-      }
-    },
-    Relaxed: {
-      English: {
-        '19–25': ['bwAWN-BWRnA'],
-        '26–35': ['vKJ7Hkrr7zQ'],
-        '36+':   ['JGwWNGJdvx8'],
-      }
-    },
-    "Sad/Angry": {
-      English: {
-        '13–18': ['hLQl3WQQoQ0', 'ZbZSe6N_BXs'],
-        '19–25': ['RgKAFK5djSk'],
-        '26–35': [],
-      }
-    },
-    Neutral: {
-      English: {
-        '13–18': ['7E9Ed9DUQoI'],
-        '19–25': ['JGwWNGJdvx8'],
-      }
-    },
-    Stressed: {
-      English: {
-        '13–18': ['vKJ7Hkrr7zQ'],
-        '19–25': ['bwAWN-BWRnA'],
-      }
-    }
-  };
-
-  // State for dropdowns and enabling the "Proceed"/quiz
-  const [ageGroup, setAgeGroup] = useState('');
-  const [language, setLanguage] = useState('');
-  const [proceedEnabled, setProceedEnabled] = useState(false);
-
-  // Save these selections globally if needed (simulate global JS storage)
-  React.useEffect(() => {
-    window.moodmelodyUserPrefs = { ageGroup, language };
-    setProceedEnabled(Boolean(ageGroup && language));
-  }, [ageGroup, language]);
-
-  // UI flow: 0 = user prefs, 1 = quiz, 2 = result
+  // UI flow: 0 = quiz, 1 = result
   const [currentStep, setCurrentStep] = useState(0);
 
   // Questions/answers/mood logic
@@ -328,13 +257,10 @@ function App() {
   const [moodHistory, setMoodHistory] = useState([]);
   const [bgStyle, setBgStyle] = useState({ background: 'var(--moodmelody-primary)' });
 
-  // Embed videoId from backend API, and any possible error
+  // Embed videoId and possible error
   const [videoId, setVideoId] = useState('');
   const [videoFetchError, setVideoFetchError] = useState('');
   const [videoLoading, setVideoLoading] = useState(false);
-
-  // For compatibility, keep song/title fallback to old local picker, if needed
-  const [resultSong, setResultSong] = useState(null);
 
   // For resetting local UI after result
   function resetAllStates() {
@@ -342,21 +268,11 @@ function App() {
     setAnswers([null, null, null]);
     setScore(null);
     setResultMood(null);
-    setResultSong(null);
     setVideoId('');
     setVideoFetchError('');
     setVideoLoading(false);
     setCurrentStep(0);
-    // (do not reset moodHistory, dropdowns, or bg)
-  }
-
-  // PUBLIC_INTERFACE
-  function handleProceedPrefs(e) {
-    e.preventDefault();
-    // Only proceed if both are selected
-    if (ageGroup && language) {
-      setCurrentStep(1);
-    }
+    // (do not reset moodHistory or bg)
   }
 
   // PUBLIC_INTERFACE
@@ -367,7 +283,7 @@ function App() {
   }
 
   // PUBLIC_INTERFACE
-  // On quiz submit, detect mood, render result card with iframe using local videoMap-based random selection
+  // On quiz submit, detect mood and render result card with iframe using simplified videoMap
   async function handleSubmit() {
     const totalScore = answers.reduce((acc, ansIdx, qIdx) =>
       acc + (questions[qIdx].options[ansIdx]?.value || 0)
@@ -375,7 +291,6 @@ function App() {
     const mood = detectMood(totalScore);
     setScore(totalScore);
     setResultMood(mood);
-    setResultSong(null);
     setVideoLoading(true);
     setVideoFetchError('');
     setVideoId('');
@@ -403,23 +318,21 @@ function App() {
       }
     }
 
-    // --- New: Select video from local videoMap object directly, frontend-only logic ---
+    // --- Select video from local videoMap object directly, frontend-only logic (no filtering by age or language) ---
     let pickedVideoId = null;
     let errorMsg = "";
     try {
-      const moodBranch = videoMap[mood.name] || {};
-      const langBranch = moodBranch[language] || {};
-      const videoOptions = langBranch[ageGroup] || [];
+      const videoOptions = videoMap[mood.name] || [];
       // Select at random
       pickedVideoId = videoOptions.length
         ? videoOptions[Math.floor(Math.random() * videoOptions.length)]
         : null;
 
       if (!pickedVideoId) {
-        errorMsg = 'No video found for your mood/language/age.';
+        errorMsg = 'No video found for your mood.';
       } else if (!(await isEmbeddableYouTube(pickedVideoId))) {
         // Check if the chosen video is embeddable
-        errorMsg = 'The selected video cannot be embedded. Please try again or choose different mood/age/language.';
+        errorMsg = 'The selected video cannot be embedded. Please try again.';
         pickedVideoId = null;
       }
     } catch (err) {
@@ -436,7 +349,7 @@ function App() {
     }
 
     setVideoLoading(false);
-    setCurrentStep(2);
+    setCurrentStep(1);
   }
 
   // PUBLIC_INTERFACE
@@ -508,121 +421,8 @@ function App() {
             alignItems: 'center'
           }}
         >
-          {/* Step 0: language and age group selection */}
+          {/* Step 0: Mood Quiz */}
           {currentStep === 0 && (
-            <>
-              <div className="subtitle" style={{
-                color: "var(--moodmelody-secondary)",
-                textAlign: "center",
-                fontWeight: 600,
-                marginBottom: 9,
-                fontSize: "1.13rem"
-              }}>
-                Start your journey—please select your preferences!
-              </div>
-              <h1 className="title" style={{
-                fontSize: "2.02rem",
-                fontWeight: 700,
-                lineHeight: 1.22,
-                margin: "0 0 19px 0",
-                color: "white"
-              }}>
-                Age & Language
-              </h1>
-              <form style={{ width: "100%" }} onSubmit={handleProceedPrefs}>
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{
-                    color: "#FBD46D", fontWeight: 600, display: "block", marginBottom: 7,
-                  }}>
-                    Age Group:
-                  </label>
-                  <select
-                    value={ageGroup}
-                    onChange={e => setAgeGroup(e.target.value)}
-                    style={{
-                      width: "100%", padding: "10px 8px", borderRadius: 7,
-                      fontSize: "1.03rem", background: "#222326", color: "#fff",
-                      border: "1.8px solid #FBD46D", marginBottom: 1,
-                    }}
-                  >
-                    <option value="">-- Choose Age Group --</option>
-                    {ageGroupOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                  </select>
-                </div>
-                <div style={{ marginBottom: 17 }}>
-                  <label style={{
-                    color: "#F76B8A", fontWeight: 600, display: "block", marginBottom: 7,
-                  }}>
-                    Language:
-                  </label>
-                  <select
-                    value={language}
-                    onChange={e => setLanguage(e.target.value)}
-                    style={{
-                      width: "100%", padding: "10px 8px", borderRadius: 7,
-                      fontSize: "1.03rem", background: "#222326", color: "#fff",
-                      border: "1.8px solid #F76B8A", marginBottom: 1,
-                    }}
-                  >
-                    <option value="">-- Choose Language --</option>
-                    {languageOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                  </select>
-                </div>
-                <button
-                  className="btn btn-large"
-                  type="submit"
-                  style={{
-                    width: "100%",
-                    background: "linear-gradient(90deg, #FBD46D 50%, #F76B8A 98%)",
-                    color: "#161616",
-                    fontWeight: 700,
-                    letterSpacing: "1.1px",
-                    fontSize: "1.09rem",
-                    border: "none",
-                    borderRadius: 8,
-                    marginTop: 2,
-                    padding: "13px 2px",
-                    opacity: proceedEnabled ? 1 : 0.5,
-                    cursor: proceedEnabled ? "pointer" : "not-allowed",
-                  }}
-                  disabled={!proceedEnabled}
-                >
-                  Proceed
-                </button>
-              </form>
-              <div style={{
-                marginTop: 28, width: "100%", padding: "7px 8px",
-                color: "#FBD46D", fontSize: "0.99em"
-              }}>
-                {moodHistory.length > 0 && (
-                  <>
-                    <b>Last 7 mood entries:</b>
-                    <ul style={{ listStyleType: "none", margin: 0, padding: 0 }}>
-                      {moodHistory.map((entry, idx) => (
-                        <li key={idx}
-                          style={{
-                            margin: "6px 0",
-                            color: "#fff",
-                            background: "rgba(251,212,109,0.10)",
-                            borderRadius: 7, padding: "5px 7px",
-                            display: "flex", alignItems: "center"
-                          }}>
-                          <span style={{ fontSize: "1em", marginRight: 9 }}>{moodToEmoji(entry.mood)}</span>
-                          <span>{entry.mood}</span>
-                          <span style={{ marginLeft: "auto", fontSize: ".93em", color: "#fbd46dcc" }}>
-                            {new Date(entry.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}{" "}
-                            {new Date(entry.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                )}
-              </div>
-            </>
-          )}
-          {/* Step 1: Mood Quiz */}
-          {currentStep === 1 && (
             <>
               <div className="subtitle" style={{
                 color: "var(--moodmelody-secondary)",
@@ -724,10 +524,39 @@ function App() {
                   See My Mood & Song 🎵
                 </button>
               </form>
+              <div style={{
+                marginTop: 28, width: "100%", padding: "7px 8px",
+                color: "#FBD46D", fontSize: "0.99em"
+              }}>
+                {moodHistory.length > 0 && (
+                  <>
+                    <b>Last 7 mood entries:</b>
+                    <ul style={{ listStyleType: "none", margin: 0, padding: 0 }}>
+                      {moodHistory.map((entry, idx) => (
+                        <li key={idx}
+                          style={{
+                            margin: "6px 0",
+                            color: "#fff",
+                            background: "rgba(251,212,109,0.10)",
+                            borderRadius: 7, padding: "5px 7px",
+                            display: "flex", alignItems: "center"
+                          }}>
+                          <span style={{ fontSize: "1em", marginRight: 9 }}>{moodToEmoji(entry.mood)}</span>
+                          <span>{entry.mood}</span>
+                          <span style={{ marginLeft: "auto", fontSize: ".93em", color: "#fbd46dcc" }}>
+                            {new Date(entry.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}{" "}
+                            {new Date(entry.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
             </>
           )}
-          {/* Step 2: Result card with embedded video */}
-          {currentStep === 2 && (
+          {/* Step 1: Result card with embedded video */}
+          {currentStep === 1 && (
             <>
               <div style={{ width: "100%" }}>
                 <div
@@ -762,7 +591,7 @@ function App() {
                 }}>
                   {resultMood?.message}
                 </div>
-                {/* Embedded YouTube player from backend API */}
+                {/* Embedded YouTube player */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: "15px auto 9px auto" }}>
                   {videoLoading ? (
                     <div style={{ color: "#FBD46D", fontWeight: 500, marginBottom: 8, marginTop: 30 }}>Loading video...</div>
@@ -806,7 +635,7 @@ function App() {
                           <div style={{ color: "#FF8B4D", fontWeight: 500, marginTop: "25px", minHeight: "38px" }}>
                             {videoId && !isValidYouTubeId(videoId)
                               ? "This video could not be embedded. It may be invalid, restricted, or not supported for embedding by YouTube, or the API returned an unembeddable private video."
-                              : videoFetchError || 'No video found for your mood/language/age.'}
+                              : videoFetchError || 'No video found for your mood.'}
                           </div>
                         )
                       }
