@@ -51,7 +51,28 @@ const videoMap = {
     "G5TZ6fTYrsE",
     "S2Cti12XBw4"
   ],
-  Confused: ["kXYiU_JCYtU", "hTWKbfoikeg", "fJ9rUzIMcZQ"],
+  Confused: [
+    "kXYiU_JCYtU", // Linkin Park – Numb
+    "hTWKbfoikeg", // Nirvana – Smells Like Teen Spirit
+    "fJ9rUzIMcZQ", // Queen – Bohemian Rhapsody
+    "z_Ca6ZCm4x8", // Owl City - Fireflies
+    "Edwsf-8F3sY", // Khalid - Location
+    "tVj0ZTS4WF4", // Pitbull - Timber ft. Kesha
+    "YQHsXMglC9A", // Adele - Hello
+    "iS1g8G_njx8", // Glass Animals - Gooey
+    "QJO3ROT-A4E", // One Direction - What Makes You Beautiful
+    "OPf0YbXqDm0", // Mark Ronson - Uptown Funk ft. Bruno Mars
+    "u9Dg-g7t2l4", // System Of A Down - Chop Suey!
+    "e-ORhEE9VVg", // Taylor Swift - Blank Space
+    "60ItHLz5WEA", // Alan Walker - Faded
+    "VbfpW0pbvaU", // David Guetta - Titanium ft. Sia
+    "AjG2z7pseKA", // panic! at the disco - Emperor's New Clothes
+    "ZbZSe6N_BXs", // Pharrell Williams - Happy (contrasting mood for confusion)
+    "mWRsgZuwf_8", // Imagine Dragons - Demons
+    "gOsM-DYAEhY", // Owl City - Vanilla Twilight
+    "eQWG8BVeryU", // twenty one pilots - Ride
+    "fLexgOxsZu0"  // Bruno Mars - The Lazy Song
+  ],
   Energetic: ["Fp8msa5uYsc", "ktvTqknDobU", "ZbZSe6N_BXs"],
   Motivated: ["d-diB65scQU", "HvWUMvFQk_s", "9bZkp7q19f0", "Fp8msa5uYsc"],
   // Expanded video list for "Lonely" (example IDs, replace/expand as needed)
