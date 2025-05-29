@@ -339,6 +339,20 @@ function App() {
     setBgStyle({ background: bg, transition: "background 0.8s" });
     document.body.style.background = bg;
 
+    // Helper: check if YouTube video is actually embeddable/public
+    async function isEmbeddableYouTube(videoId) {
+      if (!isValidYouTubeId(videoId)) return false;
+      try {
+        // YouTube oEmbed API, returns 404 or error if unembeddable/unlisted/private
+        const resp = await fetch(
+          `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
+        );
+        return resp.ok;
+      } catch {
+        return false;
+      }
+    }
+
     // Attempt backend video selection API
     try {
       const resp = await fetch('/get-video', {
@@ -349,7 +363,13 @@ function App() {
       if (resp.ok) {
         const data = await resp.json();
         if (data.videoId) {
-          setVideoId(data.videoId);
+          // Now check if the videoId is embeddable (not just syntactically valid)
+          if (await isEmbeddableYouTube(data.videoId)) {
+            setVideoId(data.videoId);
+          } else {
+            setVideoId('');
+            setVideoFetchError('The selected video cannot be embedded—choose another mood or try again!');
+          }
         } else {
           setVideoId('');
           setVideoFetchError('No video found for your selection.');
@@ -370,8 +390,14 @@ function App() {
         return null;
       })();
       if (videoIdFallback) {
-        setVideoId(videoIdFallback);
-        setVideoFetchError('');
+        // Check if the fallback videoId is embeddable
+        if (await isEmbeddableYouTube(videoIdFallback)) {
+          setVideoId(videoIdFallback);
+          setVideoFetchError('');
+        } else {
+          setVideoId('');
+          setVideoFetchError('Fallback video is not embeddable. Please try a different selection.');
+        }
       } else {
         setVideoFetchError('No video found for your selection (offline fallback).');
         setVideoId('');
@@ -748,7 +774,7 @@ function App() {
                         ) : (
                           <div style={{ color: "#FF8B4D", fontWeight: 500, marginTop: "25px", minHeight: "38px" }}>
                             {videoId && !isValidYouTubeId(videoId)
-                              ? "This video could not be embedded (invalid or restricted YouTube ID)."
+                              ? "This video could not be embedded. It may be invalid, restricted, or not supported for embedding by YouTube, or the API returned an unembeddable private video."
                               : videoFetchError || 'No video found for your mood/language/age.'}
                           </div>
                         )
