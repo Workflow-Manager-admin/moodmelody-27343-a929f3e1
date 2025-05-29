@@ -9,7 +9,28 @@ const videoMap = {
     "fLexgOxsZu0", "2Vv-BfVoq4g", "5NV6Rdv1a3I", "CwfoyVa980U", "hT_nvWreIhg",
     "kXYiU_JCYtU", "vU2RkR3lbzQ", "bESGLojNYSo"
   ],
-  Sad: ["RgKAFK5djSk", "hLQl3WQQoQ0", "hoNb6HuNmU0", "bwAWN-BWRnA"],
+  Sad: [
+    "RgKAFK5djSk", // Wiz Khalifa ft. Charlie Puth – See You Again
+    "hLQl3WQQoQ0", // Adele – Someone Like You
+    "hoNb6HuNmU0", // Adele – Set Fire to the Rain
+    "bwAWN-BWRnA", // Lewis Capaldi – Someone You Loved
+    "JGwWNGJdvx8", // Ed Sheeran – Shape Of You
+    "d2PT7fB2RMc", // John Legend – All of Me
+    "4N3N1MlvVc4", // Eric Clapton – Tears In Heaven
+    "8UVNT4wvIGY", // Gotye – Somebody That I Used to Know
+    "KYpMz9kKQk4", // Sam Smith – Too Good At Goodbyes
+    "vHqpwU5liUw", // Sam Smith – Stay With Me
+    "n4RjJKxsamQ", // Bonnie Tyler – Total Eclipse of the Heart
+    "G7KNmW9a75Y", // The Script – Breakeven
+    "i41qWJ6QjPI", // James Blunt – Goodbye My Lover
+    "eVTXPUF4Oz4", // Linkin Park – Numb (sad association)
+    "lcOxhH8N3Bo", // Green Day – Wake Me Up When September Ends
+    "2Vv-BfVoq4g", // Ed Sheeran – Perfect
+    "KRaWnd3LJfs", // Backstreet Boys – Show Me The Meaning Of Being Lonely
+    "uelHwf8o7_U", // Eminem – Love The Way You Lie
+    "bCjJZctBxXI", // Kodaline – All I Want
+    "y6Sxv-sUYtM", // Mark Ronson - Uptown Funk (for ironic/sad cheer)
+  ],
   Angry: [
     "hLQl3WQQoQ0", "hTWKbfoikeg", "fJ9rUzIMcZQ", "ktvTqknDobU", "RgKAFK5djSk",
     "7E9Ed9DUQoI", "kXYiU_JCYtU", "4N3N1MlvVc4", "G5TZ6fTYrsE", "Sb5aq5HcS1A",
