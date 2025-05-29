@@ -56,38 +56,75 @@ const questionPool = [
   }
 ];
 
-// PUBLIC_INTERFACE
-// Mappings for mood categories, messages, and YouTube songs
+/*
+  PUBLIC_INTERFACE
+  moodData retains meta info for each mood, but songs are managed in moodToSongs.
+  moodToSongs maps mood names to an array of possible YouTube song objects (id, title).
+*/
 const moodData = [
   {
     name: "Happy",
-    range: [5, 6], // 3 answers, max possible is 6
+    range: [5, 6],
     color: "#FBD46D",
-    message: "You're shining bright! Keep spreading good vibes and enjoy this happy tune 🎉",
-    youtubeId: "ZbZSe6N_BXs" // Happy - Pharrell Williams
+    message: "You're shining bright! Keep spreading good vibes and enjoy these happy tunes! 🎉"
   },
   {
     name: "Neutral",
     range: [1, 4],
     color: "#F76B8A",
-    message: "You're feeling balanced. Here's a chill song to keep the mood mellow!",
-    youtubeId: "7E9Ed9DUQoI" // Vance Joy - Riptide
+    message: "You're feeling balanced. Here are some chill songs to keep the mood mellow!"
   },
   {
     name: "Stressed",
     range: [-3, 0],
     color: "#0c0e0e",
-    message: "Life can be overwhelming. Take a breath and listen to something soothing 💛",
-    youtubeId: "vKJ7Hkrr7zQ" // Coldplay - Fix You
+    message: "Life can be overwhelming. Take a breath and listen to something soothing 💛"
   },
   {
     name: "Sad/Angry",
     range: [-6, -4],
     color: "#F76B8A",
-    message: "It's okay to have tough days. Music brings comfort—hope this song helps you feel a bit better.",
-    youtubeId: "RgKAFK5djSk" // Wiz Khalifa - See You Again
+    message: "It's okay to have tough days. Music brings comfort—hope one of these songs helps you feel better."
   }
 ];
+
+// PUBLIC_INTERFACE
+// Mapping moods to an array of YouTube song choices. Add more as needed!
+const moodToSongs = {
+  Happy: [
+    { youtubeId: "ZbZSe6N_BXs", title: "Pharrell Williams – Happy" },
+    { youtubeId: "HgzGwKwLmgM", title: "Queen – Don’t Stop Me Now" },
+    { youtubeId: "y6Sxv-sUYtM", title: "Mark Ronson ft. Bruno Mars – Uptown Funk" }
+  ],
+  Neutral: [
+    { youtubeId: "7E9Ed9DUQoI", title: "Vance Joy – Riptide" },
+    { youtubeId: "JGwWNGJdvx8", title: "Ed Sheeran – Shape Of You" },
+    { youtubeId: "kXYiU_JCYtU", title: "Linkin Park – Numb" }
+  ],
+  Stressed: [
+    { youtubeId: "vKJ7Hkrr7zQ", title: "Coldplay – Fix You" },
+    { youtubeId: "bwAWN-BWRnA", title: "Lewis Capaldi – Someone You Loved" },
+    { youtubeId: "hoNb6HuNmU0", title: "Adele – Someone Like You" }
+  ],
+  "Sad/Angry": [
+    { youtubeId: "RgKAFK5djSk", title: "Wiz Khalifa ft. Charlie Puth – See You Again" },
+    { youtubeId: "fJ9rUzIMcZQ", title: "Queen – Bohemian Rhapsody" },
+    { youtubeId: "hLQl3WQQoQ0", title: "Adele – Someone Like You" }
+  ]
+};
+
+/**
+ * PUBLIC_INTERFACE
+ * Given a mood string, randomly select a song from that mood's song list.
+ * @param {string} mood
+ * @returns {object} {youtubeId, title}
+ */
+function getRandomSongForMood(mood) {
+  const songs = moodToSongs[mood] || [];
+  if (songs.length === 0) return null;
+  const idx = Math.floor(Math.random() * songs.length);
+  return songs[idx];
+}
 
 // Shuffle utility (Fisher-Yates)
 function shuffleArray(arr) {
