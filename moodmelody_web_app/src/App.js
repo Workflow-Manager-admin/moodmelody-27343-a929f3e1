@@ -353,6 +353,7 @@ function App() {
         >
           {step === 0 ? (
             <>
+              {/* ... (original quiz UI, unchanged) ... */}
               <div className="subtitle" style={{
                 color: "var(--moodmelody-secondary)",
                 textAlign: "center",
@@ -453,6 +454,53 @@ function App() {
                   See My Mood & Song 🎵
                 </button>
               </form>
+              {/* Mood History shown on quiz step if exists */}
+              {moodHistory.length > 0 && (
+                <div style={{
+                  marginTop: 35,
+                  width: "100%",
+                  padding: "10px 6px 2px 6px",
+                  background: "rgba(6,6,12,0.48)",
+                  borderRadius: 11,
+                  boxShadow: "0 1.5px 4px #23232615",
+                  color: "#FBD46D",
+                  fontSize: ".97em",
+                  textAlign: "center",
+                  marginBottom: 2
+                }}>
+                  <div style={{
+                    color: "#FBD46D",
+                    fontWeight: 600,
+                    fontSize: "1.11em",
+                    letterSpacing: "0.06em",
+                    marginBottom: 7
+                  }}>Last 7 Mood Entries</div>
+                  <ul style={{ listStyleType: "none", margin: 0, padding: 0, textAlign: "left" }}>
+                    {moodHistory.map((entry, idx) => (
+                      <li key={idx}
+                        style={{
+                          margin: "7px 0",
+                          padding: "7px 8px",
+                          borderRadius: 7,
+                          background: "rgba(251,212,109,0.10)",
+                          color: "#fff",
+                          display: "flex",
+                          alignItems: "center",
+                          fontWeight: 500
+                        }}>
+                        <span style={{ fontSize: "1.25em", marginRight: 10 }}>
+                          {moodToEmoji(entry.mood)}
+                        </span>
+                        <span>{entry.mood}</span>
+                        <span style={{ marginLeft: "auto", fontSize: ".92em", color: "#fbd46dcc" }}>
+                          {new Date(entry.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}{" "}
+                          {new Date(entry.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </>
           ) : (
             // Result card
@@ -473,10 +521,7 @@ function App() {
                         letterSpacing: ".18rem"
                       }}
                     >
-                      {mood?.name === "Happy" && "🌞"}
-                      {mood?.name === "Neutral" && "😊"}
-                      {mood?.name === "Stressed" && "😓"}
-                      {mood?.name === "Sad/Angry" && "😭"}
+                      {moodToEmoji(mood?.name)}
                       &nbsp;Your Mood:&nbsp;
                       <span style={{
                         background: `linear-gradient(99deg, ${mood?.color} 40%, #fff 100%)`,
@@ -559,6 +604,53 @@ function App() {
                     >
                       Try Again
                     </button>
+                    {/* Mood history under result */}
+                    {moodHistory.length > 0 && (
+                      <div style={{
+                        marginTop: 24,
+                        width: "100%",
+                        padding: "10px 6px 2px 6px",
+                        background: "rgba(6,6,12,0.47)",
+                        borderRadius: 11,
+                        boxShadow: "0 1.5px 4px #23232615",
+                        color: "#FBD46D",
+                        fontSize: ".98em",
+                        textAlign: "center",
+                        marginBottom: 2
+                      }}>
+                        <div style={{
+                          color: "#FBD46D",
+                          fontWeight: 600,
+                          fontSize: "1.09em",
+                          letterSpacing: "0.06em",
+                          marginBottom: 7
+                        }}>Last 7 Mood Entries</div>
+                        <ul style={{ listStyleType: "none", margin: 0, padding: 0, textAlign: "left" }}>
+                          {moodHistory.map((entry, idx) => (
+                            <li key={idx}
+                              style={{
+                                margin: "7px 0",
+                                padding: "7px 8px",
+                                borderRadius: 7,
+                                background: "rgba(251,212,109,0.10)",
+                                color: "#fff",
+                                display: "flex",
+                                alignItems: "center",
+                                fontWeight: 500
+                              }}>
+                              <span style={{ fontSize: "1.23em", marginRight: 10 }}>
+                                {moodToEmoji(entry.mood)}
+                              </span>
+                              <span>{entry.mood}</span>
+                              <span style={{ marginLeft: "auto", fontSize: ".92em", color: "#fbd46dcc" }}>
+                                {new Date(entry.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}{" "}
+                                {new Date(entry.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
