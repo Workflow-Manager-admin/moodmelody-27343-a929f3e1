@@ -243,7 +243,7 @@ function App() {
   const languageOptions = ['Tamil', 'English', 'Hindi', 'Malayalam', 'Telugu', 'Kannada', 'Korean', 'Japanese'];
 
   // Supplied videoMap object for mood/language/ageGroup-based selection
-  // Expand the object as needed with real YouTube IDs in real use
+  // Expanded object with more moods and video IDs (dummy/test IDs for new moods)
   const videoMap = {
     Happy: {
       English: {
@@ -259,6 +259,51 @@ function App() {
         '19–25':    ['tam003', 'tam004'],
         '26–35':    ['tam005'],
         '36+':      ['tam006']
+      }
+    },
+    Excited: {
+      English: {
+        'Under 13': ['y6Sxv-sUYtM'],
+        '13–18':    ['HgzGwKwLmgM', 'fJ9rUzIMcZQ'],
+        '19–25':    ['ktvTqknDobU','LsoLEjrDogU'],
+        '26–35':    ['Fp8msa5uYsc'],
+        '36+':      ['d-diB65scQU']
+      },
+      Tamil: {
+        'Under 13': ['TnG1W5ZwK5A'],
+        '26–35':    ['tam003'],
+      }
+    },
+    Angry: {
+      English: {
+        '13–18': ['hTWKbfoikeg', 'fJ9rUzIMcZQ'], // Nirvana, Queen
+        '19–25': ['ktvTqknDobU'], // Imagine Dragons
+        '26–35': ['hLQl3WQQoQ0'], // Adele (as power ballad)
+        '36+':   ['fJ9rUzIMcZQ']
+      },
+      Hindi: {
+        '19–25': ['hin002'],
+      }
+    },
+    Bored: {
+      English: {
+        'Under 13': ['JGwWNGJdvx8'],
+        '13–18': ['7E9Ed9DUQoI'],
+        '19–25': ['kXYiU_JCYtU'],
+        '26–35': ['d-diB65scQU'],
+      },
+      Tamil: {
+        '13–18': ['tamN1']
+      }
+    },
+    Relaxed: {
+      English: {
+        '19–25': ['bwAWN-BWRnA'],
+        '26–35': ['vKJ7Hkrr7zQ'],
+        '36+':   ['JGwWNGJdvx8'],
+      },
+      Malayalam: {
+        '26–35': ['mal001']
       }
     },
     "Sad/Angry": {
