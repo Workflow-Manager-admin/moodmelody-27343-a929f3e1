@@ -139,6 +139,38 @@ function App() {
   const [videoId, setVideoId] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Persistent Mood Log State
+  const [moodLog, setMoodLog] = useState([]);
+
+  // PUBLIC_INTERFACE: Get mood log from localStorage
+  function getStoredMoodLog() {
+    try {
+      const json = localStorage.getItem('moodmelody_moodlog');
+      if (!json) return [];
+      const arr = JSON.parse(json);
+      // Defensive: ensure correct format [{mood, timestamp}]
+      if (Array.isArray(arr)) {
+        return arr
+          .filter(e => e && e.mood && e.timestamp)
+          .sort((a, b) => b.timestamp - a.timestamp);
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // PUBLIC_INTERFACE: Save mood log to localStorage (latest first, keep max 10)
+  function saveMoodLog(logArr) {
+    const trimmed = logArr.slice(0, 10);
+    localStorage.setItem('moodmelody_moodlog', JSON.stringify(trimmed));
+  }
+
+  // On app load, fetch mood log from storage
+  React.useEffect(() => {
+    setMoodLog(getStoredMoodLog());
+  }, []);
+
   // Reset quiz
   // PUBLIC_INTERFACE
   function resetQuiz() {
@@ -171,6 +203,17 @@ function App() {
         setVideoId(vid);
         setIsQuizComplete(true);
         setLoading(false);
+
+        // Save to mood log with timestamp
+        const now = Date.now();
+        const entry = { mood, timestamp: now };
+        let previous = getStoredMoodLog();
+        // If duplicate consecutive (same mood at same ms), ignore. Else append.
+        if (!previous.length || previous[0].mood !== mood || Math.abs(previous[0].timestamp - now) > 1000) {
+          const newLog = [entry, ...previous];
+          saveMoodLog(newLog);
+          setMoodLog(newLog);
+        }
       }, 450);
     }
   }
@@ -183,6 +226,13 @@ function App() {
       setVideoId(getRandomVideoIdForMood(detectedMood));
       setLoading(false);
     }, 330);
+  }
+
+  // Utility: format timestamp nicely
+  function formatDate(ts) {
+    const date = new Date(ts);
+    // e.g., "2024-06-02 14:33"
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")} ${String(date.getHours()).padStart(2,"0")}:${String(date.getMinutes()).padStart(2,"0")}`;
   }
 
   return (
@@ -472,6 +522,63 @@ function App() {
                 >
                   Try Again
                 </button>
+              </div>
+              {/* Mood log display */}
+              <div
+                style={{
+                  marginTop: 24,
+                  padding: "13px 8px 6px 8px",
+                  background: "#222328",
+                  borderRadius: 10,
+                  boxShadow: "0 2px 8px #2223281b",
+                  textAlign: "left",
+                  maxWidth: 350,
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
+              >
+                <div style={{
+                  color: "#FBD46D",
+                  fontWeight: 600,
+                  fontSize: "1.03em",
+                  marginBottom: 7,
+                  letterSpacing: ".01em"
+                }}>Your recent moods</div>
+                <ul style={{
+                  paddingLeft: 0,
+                  margin: "0 0 2px 0",
+                  listStyle: "none",
+                  color: "#FFFCD3",
+                  fontSize: "1em"
+                }}>
+                  {moodLog.length === 0 ? (
+                    <li style={{color:"#F76B8A"}}>No moods logged yet.</li>
+                  ) : (
+                    moodLog.slice(0, 10).map((entry, idx) => (
+                      <li key={entry.timestamp}
+                        style={{
+                          marginBottom: 2,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                          fontWeight: idx === 0 ? 700 : 450,
+                          fontSize: idx === 0 ? "1.05em" : "0.99em"
+                        }}>
+                        <span style={{
+                          marginRight: 8,
+                          fontSize: "1.19em"
+                        }}>{emojiForMood(entry.mood)}</span>
+                        <span style={{marginRight: 8}}>{entry.mood}</span>
+                        <span style={{
+                          color: "#FBD46D",
+                          fontSize: "0.92em",
+                          fontWeight: 450,
+                          marginLeft: "auto"
+                        }}>{formatDate(entry.timestamp)}</span>
+                      </li>
+                    ))
+                  )}
+                </ul>
               </div>
             </div>
           )}
