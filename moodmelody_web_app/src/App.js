@@ -1,6 +1,84 @@
 import React, { useState } from 'react';
 import './App.css';
 
+// ============= MoodMelody Mood Tracker & Dynamic BG Utilities =============
+
+// Key for mood history in localStorage
+const MOOD_HISTORY_KEY = 'moodmelody_mood_history_v1';
+
+// PUBLIC_INTERFACE
+// Add a mood record (with timestamp) to localStorage (keep last 7)
+function storeMoodToHistory(moodName) {
+  try {
+    const now = Date.now();
+    let history = [];
+    try {
+      history = JSON.parse(window.localStorage.getItem(MOOD_HISTORY_KEY) || '[]');
+      if (!Array.isArray(history)) history = [];
+    } catch {
+      history = [];
+    }
+    // Add new record
+    history.push({ mood: moodName, timestamp: now });
+    // Keep only most recent 7
+    if (history.length > 7) {
+      history = history.slice(history.length - 7);
+    }
+    window.localStorage.setItem(MOOD_HISTORY_KEY, JSON.stringify(history));
+    return history;
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * Get the most recent N (default 7) mood records, most recent last.
+ */
+function getMoodHistory(n = 7) {
+  try {
+    let history = JSON.parse(window.localStorage.getItem(MOOD_HISTORY_KEY) || '[]');
+    if (!Array.isArray(history)) return [];
+    // sort by timestamp ascending, then slice last N
+    return history.sort((a, b) => a.timestamp - b.timestamp).slice(-n);
+  } catch (e) {
+    return [];
+  }
+}
+
+// PUBLIC_INTERFACE
+// Mood to background mapping util: returns gradient/image for each mood
+function getBackgroundForMood(moodName) {
+  switch (moodName) {
+    case "Happy":
+      // Sunny yellow gradient
+      return "linear-gradient(135deg, #fffbb7 0%, #fbd46d 44%, #ffdf80 100%)";
+    case "Sad/Angry":
+      // Blueish gradient for sad/angry
+      return "linear-gradient(120deg, #3a6186 0%, #89253e 100%)";
+    case "Stressed":
+      // Forest/calm photo using unsplash, fallback to greenish gradient
+      return "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80'), linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%)";
+    case "Neutral":
+      // Subtle stone/gray gradient
+      return "linear-gradient(120deg, #cfd9df 0%, #e2ebf0 100%)";
+    default:
+      // fallback: dark soft
+      return "linear-gradient(135deg, #232526 0%, #414345 100%)";
+  }
+}
+
+// Small mood emoji
+function moodToEmoji(moodName) {
+  switch (moodName) {
+    case "Happy": return "🌞";
+    case "Neutral": return "😊";
+    case "Stressed": return "🌲";
+    case "Sad/Angry": return "😭";
+    default: return "🙂";
+  }
+}
+
 // PUBLIC_INTERFACE
 // Array of 5 emotional questions and options, each option has a value for scoring
 const questionPool = [
