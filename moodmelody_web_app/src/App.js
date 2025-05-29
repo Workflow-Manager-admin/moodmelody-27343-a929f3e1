@@ -214,6 +214,18 @@ function shuffleArray(arr) {
   return array;
 }
 
+/**
+ * PUBLIC_INTERFACE
+ * Validate a YouTube video ID (client-side only: syntax, length, allowed chars).
+ * This DOES NOT check embargoed/private/region/embeddability status.
+ * Returns true if the ID is well-formed for YouTube public/embeddable videos.
+ * See: https://webapps.stackexchange.com/questions/54443/format-for-id-of-youtube-video
+ */
+function isValidYouTubeId(id) {
+  // YouTube IDs are typically 11 chars, [A-Za-z0-9_-]
+  return typeof id === 'string' && /^[A-Za-z0-9_-]{11}$/.test(id);
+}
+
 // PUBLIC_INTERFACE
 function detectMood(totalScore) {
   for (let mood of moodData) {
