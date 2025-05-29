@@ -240,10 +240,9 @@ function detectMood(totalScore) {
 function App() {
   // Age group and language options
   const ageGroupOptions = ['Under 13', '13–18', '19–25', '26–35', '36+'];
-  const languageOptions = ['Tamil', 'English', 'Hindi', 'Malayalam', 'Telugu', 'Kannada', 'Korean', 'Japanese'];
+  const languageOptions = ['English'];
 
-  // Supplied videoMap object for mood/language/ageGroup-based selection
-  // Expanded object with more moods and video IDs (dummy/test IDs for new moods)
+  // Pruned videoMap: only English retained for each mood
   const videoMap = {
     Happy: {
       English: {
@@ -252,13 +251,6 @@ function App() {
         '19–25':    ['LsoLEjrDogU', 'Fp8msa5uYsc'],
         '26–35':    ['d-diB65scQU'],
         '36+':      ['9bZkp7q19f0']
-      },
-      Tamil: {
-        'Under 13': ['TnG1W5ZwK5A'],
-        '13–18':    ['tam001', 'tam002'],
-        '19–25':    ['tam003', 'tam004'],
-        '26–35':    ['tam005'],
-        '36+':      ['tam006']
       }
     },
     Excited: {
@@ -268,10 +260,6 @@ function App() {
         '19–25':    ['ktvTqknDobU','LsoLEjrDogU'],
         '26–35':    ['Fp8msa5uYsc'],
         '36+':      ['d-diB65scQU']
-      },
-      Tamil: {
-        'Under 13': ['TnG1W5ZwK5A'],
-        '26–35':    ['tam003'],
       }
     },
     Angry: {
@@ -280,9 +268,6 @@ function App() {
         '19–25': ['ktvTqknDobU'], // Imagine Dragons
         '26–35': ['hLQl3WQQoQ0'], // Adele (as power ballad)
         '36+':   ['fJ9rUzIMcZQ']
-      },
-      Hindi: {
-        '19–25': ['hin002'],
       }
     },
     Bored: {
@@ -291,9 +276,6 @@ function App() {
         '13–18': ['7E9Ed9DUQoI'],
         '19–25': ['kXYiU_JCYtU'],
         '26–35': ['d-diB65scQU'],
-      },
-      Tamil: {
-        '13–18': ['tamN1']
       }
     },
     Relaxed: {
@@ -301,9 +283,6 @@ function App() {
         '19–25': ['bwAWN-BWRnA'],
         '26–35': ['vKJ7Hkrr7zQ'],
         '36+':   ['JGwWNGJdvx8'],
-      },
-      Malayalam: {
-        '26–35': ['mal001']
       }
     },
     "Sad/Angry": {
@@ -311,26 +290,15 @@ function App() {
         '13–18': ['hLQl3WQQoQ0', 'ZbZSe6N_BXs'],
         '19–25': ['RgKAFK5djSk'],
         '26–35': [],
-      },
-      Hindi: {
-        '13–18': ['hin001'],
-        '19–25': ['hin002'],
       }
     },
     Neutral: {
-      Tamil: {
-        '13–18': ['tamN1'],
-        '26–35': ['tamN2']
-      },
       English: {
         '13–18': ['7E9Ed9DUQoI'],
         '19–25': ['JGwWNGJdvx8'],
       }
     },
     Stressed: {
-      Malayalam: {
-        '26–35': ['mal001'],
-      },
       English: {
         '13–18': ['vKJ7Hkrr7zQ'],
         '19–25': ['bwAWN-BWRnA'],
