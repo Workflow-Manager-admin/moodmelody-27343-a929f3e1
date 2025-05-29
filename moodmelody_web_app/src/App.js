@@ -7,11 +7,35 @@ const videoMap = {
   Sad: ["RgKAFK5djSk", "hLQl3WQQoQ0", "hoNb6HuNmU0", "bwAWN-BWRnA"],
   Angry: ["hLQl3WQQoQ0", "hTWKbfoikeg", "fJ9rUzIMcZQ", "ktvTqknDobU"],
   Relaxed: ["vKJ7Hkrr7zQ", "bwAWN-BWRnA", "JGwWNGJdvx8"],
-  Stressed: ["vKJ7Hkrr7zQ", "bwAWN-BWRnA", "hoNb6HuNmU0"],
+  // Expanded video list for "Stressed" (example IDs, replace/expand as needed)
+  Stressed: [
+    "vKJ7Hkrr7zQ",
+    "bwAWN-BWRnA",
+    "hoNb6HuNmU0",
+    "JGwWNGJdvx8",
+    "kXYiU_JCYtU",
+    "7E9Ed9DUQoI",
+    "fgN3CWWvGAg",
+    "F4k0Rkxs4qM",
+    "G5TZ6fTYrsE",
+    "S2Cti12XBw4"
+  ],
   Confused: ["kXYiU_JCYtU", "hTWKbfoikeg", "fJ9rUzIMcZQ"],
   Energetic: ["Fp8msa5uYsc", "ktvTqknDobU", "ZbZSe6N_BXs"],
   Motivated: ["d-diB65scQU", "HvWUMvFQk_s", "9bZkp7q19f0", "Fp8msa5uYsc"],
-  Lonely: ["hLQl3WQQoQ0", "RgKAFK5djSk", "bwAWN-BWRnA"],
+  // Expanded video list for "Lonely" (example IDs, replace/expand as needed)
+  Lonely: [
+    "hLQl3WQQoQ0",
+    "RgKAFK5djSk",
+    "bwAWN-BWRnA",
+    "9bZkp7q19f0",
+    "H4eEQT1f5YQ",
+    "K5KAc5CoCuk",
+    "4N3N1MlvVc4",
+    "vU2RkR3lbzQ",
+    "CevxZvSJLk8",
+    "YqeW9_5kURI"
+  ],
   Excited: ["fJ9rUzIMcZQ", "Fp8msa5uYsc", "ktvTqknDobU", "d-diB65scQU"],
 };
 
