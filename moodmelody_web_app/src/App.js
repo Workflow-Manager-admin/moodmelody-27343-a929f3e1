@@ -361,11 +361,11 @@ function App() {
       if (latestMood) {
         const bg = getBackgroundForMood(latestMood);
         setBgStyle({ background: bg, transition: "background 0.8s" });
-        document.body.style.background = bg;
+        // document.body.style.background = bg;
       }
     } else {
       setBgStyle({ background: 'var(--moodmelody-primary)' });
-      document.body.style.background = 'var(--moodmelody-primary)';
+      // document.body.style.background = 'var(--moodmelody-primary)';
     }
   }
 
@@ -381,15 +381,13 @@ function App() {
       const lastMood = stored[stored.length - 1]?.mood;
       const bg = getBackgroundForMood(lastMood);
       setBgStyle({ background: bg, transition: "background 0.8s" });
-      document.body.style.background = bg;
+      // document.body.style.background = bg;
     } else {
       setBgStyle({ background: 'var(--moodmelody-primary)' });
-      document.body.style.background = 'var(--moodmelody-primary)';
+      // document.body.style.background = 'var(--moodmelody-primary)';
     }
-    // Cleanup on unmount
-    return () => {
-      document.body.style.background = 'var(--moodmelody-primary)';
-    };
+    // Cleanup on unmount: (no-op, now handled by CSS)
+    return () => {};
   }, []);
 
   // MAIN RENDER UI FLOW
