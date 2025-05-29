@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MoodMelody – Mood Video Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      background: #18191Dcc;
+      border-radius: 18px;
+      box-shadow: 0 8px 38px -8px #23252633;
+      padding: 38px 32px 30px 32px;
+      max-width: 420px;
+      width: 94vw;
+      text-align: center;
+      margin-top: 54px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #FBD46D;
+      margin-top: 0;
+      font-size: 2.3rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .desc {
+      color: #F76B8A;
+      font-size: 1.13rem;
+      margin-bottom: 22px;
+      font-weight: 500;
+    }
+    .moods {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 13px 17px;
+      width: 100%;
+      margin-bottom: 28px;
+    }
+    @media (min-width: 480px) {
+      .moods {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    .mood-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 13px;
+      background: linear-gradient(99deg, #FBD46D 60%, #F76B8A 100%);
+      color: #18191D;
+      font-weight: 600;
+      font-size: 1.05em;
+      padding: 15px 8px 11px 8px;
+      transition: box-shadow 0.15s, background 0.16s;
+      box-shadow: 0 2px 10px #FBD46D29;
+      cursor: pointer;
+      outline: none;
+      min-width: 96px;
+      min-height: 63px;
+      user-select: none;
+      position: relative;
+    }
+    .mood-btn:hover, .mood-btn:focus {
+      background: linear-gradient(99deg, #F76B8A 20%, #FBD46D 100%);
+      box-shadow: 0 4px 14px 2px #F76B8A33;
+      color: #fff;
+    }
+    .emoji {
+      font-size: 1.8em;
+      margin-bottom: 2px;
+      line-height: 1;
+    }
+    .video-container {
+      margin-top: 7px;
+      margin-bottom: 12px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .video-embed {
+      width: 95%;
+      max-width: 340px;
+      height: 215px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0px 8px #FBD46D2f;
+      border: 2.2px solid #FBD46D;
+      background: #161718;
+      margin: 0 auto 7px auto;
+      display: block;
+    }
+    .yt-link {
+      color: #F76B8A;
+      text-decoration: underline;
+      font-weight: 600;
+      font-size: 1.01em;
+    }
+    .msg {
+      margin-bottom: 13px;
+      color: #FBD46D;
+      font-size: 1.09em;
+      font-weight: 500;
+    }
+    .err {
+      color: #F76B8A;
+      font-size: 1em;
+      font-weight: 500;
+      margin-bottom: 7px;
+    }
+    .footer {
+      margin-top: 35px;
+      color: #FBD46D;
+      opacity: 0.81;
+      font-size: 0.97em;
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+      <span style="color:#F76B8A;font-weight:bold;">♪</span>
+      MoodMelody
+    </h1>
+    <div class="desc">Select your mood and let us play a video that fits – instantly! Ten moods, ten vibes. Click a mood below:</div>
+
+    <div class="moods" id="moodButtons">
+      <!-- Mood buttons rendered by JS -->
+    </div>
+    <div id="videoArea" class="video-container"></div>
+  </div>
+  <div class="footer">MoodMelody &copy; 2024 | Demo – frontend only</div>
+  <script>
+    // --- Mood to YouTube Video IDs Map (as required) ---
+    // Each mood is mapped to an array of YouTube video IDs, more can be added easily
+    const videoMap = {
+      Happy: ['ZbZSe6N_BXs', 'HgzGwKwLmgM', 'y6Sxv-sUYtM', 'LsoLEjrDogU'],
+      Excited: ['fJ9rUzIMcZQ', 'Fp8msa5uYsc', 'ktvTqknDobU', 'd-diB65scQU'],
+      Angry: ['hLQl3WQQoQ0', 'hTWKbfoikeg', 'fJ9rUzIMcZQ', 'ktvTqknDobU'],
+      Sad: ['RgKAFK5djSk', 'hLQl3WQQoQ0', 'hoNb6HuNmU0', 'bwAWN-BWRnA'],
+      Bored: ['JGwWNGJdvx8', '7E9Ed9DUQoI', 'kXYiU_JCYtU', 'HgzGwKwLmgM'],
+      Relaxed: ['vKJ7Hkrr7zQ', 'bwAWN-BWRnA', 'JGwWNGJdvx8'],
+      "Sad/Angry": ['hLQl3WQQoQ0', 'fgN3CWWvGAg', 'RgKAFK5djSk', 'd-diB65scQU'],
+      Neutral: ['7E9Ed9DUQoI', 'JGwWNGJdvx8', 'kXYiU_JCYtU'],
+      Stressed: ['vKJ7Hkrr7zQ', 'bwAWN-BWRnA', 'hoNb6HuNmU0'],
+      Inspired: ['d-diB65scQU', 'HvWUMvFQk_s', '9bZkp7q19f0', 'Fp8msa5uYsc']
+    };
+
+    // --- Button presentation: mood name, emoji, color accent for fun ---
+    const moods = [
+      { name: "Happy", emoji: "🌞" },
+      { name: "Excited", emoji: "🤩" },
+      { name: "Angry", emoji: "😡" },
+      { name: "Sad", emoji: "😭" },
+      { name: "Bored", emoji: "😐" },
+      { name: "Relaxed", emoji: "🌴" },
+      { name: "Sad/Angry", emoji: "😢" },
+      { name: "Neutral", emoji: "🙂" },
+      { name: "Stressed", emoji: "😵" },
+      { name: "Inspired", emoji: "🚀" }
+    ];
+
+    // --- Utility: randomly pick one from an array ---
+    // PUBLIC_INTERFACE
+    function playRandomVideo(mood) {
+      const area = document.getElementById('videoArea');
+      area.innerHTML = ""; // clear old
+
+      const videos = videoMap[mood] || [];
+      if (!videos.length) {
+        area.innerHTML = `<div class="err">No videos available for "${mood}". Try another mood!</div>`;
+        return;
+      }
+      const idx = Math.floor(Math.random() * videos.length);
+      const videoId = videos[idx];
+
+      // Validate YouTube ID (basic check, 11 chars)
+      if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) {
+        area.innerHTML = '<div class="err">Invalid video ID picked!</div>';
+        return;
+      }
+      area.innerHTML = `
+        <div class="msg">Enjoy a song for <b>${mood}</b>!</div>
+        <iframe 
+          class="video-embed"
+          src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0"
+          width="100%" height="215"
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen title="Mood Video"></iframe>
+        <div>
+          <a class="yt-link" href="https://youtu.be/${videoId}" target="_blank">Open in YouTube</a>
+        </div>
+      `;
+    }
+
+    // --- Render mood buttons on load ---
+    window.onload = function() {
+      const btnsDiv = document.getElementById("moodButtons");
+      btnsDiv.innerHTML = "";
+      for (let mood of moods) {
+        const button = document.createElement("button");
+        button.className = "mood-btn";
+        button.type = "button";
+        button.innerHTML = `<div class="emoji">${mood.emoji}</div>${mood.name}`;
+        button.onclick = () => playRandomVideo(mood.name);
+        btnsDiv.appendChild(button);
+      }
+    }
+  </script>
+</body>
+</html>
