@@ -3,9 +3,19 @@ import "./App.css";
 
 // Expanded videoMap for 10 moods with multiple YouTube IDs each
 const videoMap = {
-  Happy: ["ZbZSe6N_BXs", "HgzGwKwLmgM", "y6Sxv-sUYtM", "LsoLEjrDogU"],
+  Happy: [
+    "ZbZSe6N_BXs", "HgzGwKwLmgM", "y6Sxv-sUYtM", "LsoLEjrDogU", "d-diB65scQU",
+    "9bZkp7q19f0", "JGwWNGJdvx8", "HvWUMvFQk_s", "DUT5rEU6pqM", "CevxZvSJLk8",
+    "fLexgOxsZu0", "2Vv-BfVoq4g", "5NV6Rdv1a3I", "CwfoyVa980U", "hT_nvWreIhg",
+    "kXYiU_JCYtU", "vU2RkR3lbzQ", "bESGLojNYSo"
+  ],
   Sad: ["RgKAFK5djSk", "hLQl3WQQoQ0", "hoNb6HuNmU0", "bwAWN-BWRnA"],
-  Angry: ["hLQl3WQQoQ0", "hTWKbfoikeg", "fJ9rUzIMcZQ", "ktvTqknDobU"],
+  Angry: [
+    "hLQl3WQQoQ0", "hTWKbfoikeg", "fJ9rUzIMcZQ", "ktvTqknDobU", "RgKAFK5djSk",
+    "7E9Ed9DUQoI", "kXYiU_JCYtU", "4N3N1MlvVc4", "G5TZ6fTYrsE", "Sb5aq5HcS1A",
+    "bfqEisGgyaM", "B1wOK9yGUYM", "2vjPBrBU-TM", "u9Dg-g7t2l4", "hT_nvWreIhg",
+    "hLQl3WQQoQ0", "FgG1UBr-bjs", "ZbZSe6N_BXs"
+  ],
   Relaxed: ["vKJ7Hkrr7zQ", "bwAWN-BWRnA", "JGwWNGJdvx8"],
   // Expanded video list for "Stressed" (example IDs, replace/expand as needed)
   Stressed: [
