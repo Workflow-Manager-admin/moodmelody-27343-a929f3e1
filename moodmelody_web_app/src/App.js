@@ -242,18 +242,55 @@ function App() {
   const ageGroupOptions = ['Under 13', '13–18', '19–25', '26–35', '36+'];
   const languageOptions = ['Tamil', 'English', 'Hindi', 'Malayalam', 'Telugu', 'Kannada', 'Korean', 'Japanese'];
 
-  // Video map for local lookup or fallback, matches expected backend schema
-  // Sample/fallback video map, can be sourced on backend for real API
+  // Supplied videoMap object for mood/language/ageGroup-based selection
+  // Expand the object as needed with real YouTube IDs in real use
   const videoMap = {
     Happy: {
-      English: { '13–18': ['abc123', 'def456'], '19–25': ['ghi789', 'jkl012'] },
-      Tamil: { '13–18': ['tam001', 'tam002'], '19–25': ['tam003', 'tam004'] }
+      English: {
+        'Under 13': ['ZbZSe6N_BXs', 'HvWUMvFQk_s'],
+        '13–18':    ['HgzGwKwLmgM', 'y6Sxv-sUYtM'],
+        '19–25':    ['LsoLEjrDogU', 'Fp8msa5uYsc'],
+        '26–35':    ['d-diB65scQU'],
+        '36+':      ['9bZkp7q19f0']
+      },
+      Tamil: {
+        'Under 13': ['TnG1W5ZwK5A'],
+        '13–18':    ['tam001', 'tam002'],
+        '19–25':    ['tam003', 'tam004'],
+        '26–35':    ['tam005'],
+        '36+':      ['tam006']
+      }
     },
-    Sad: {
-      Hindi: { '13–18': ['hin001', 'hin002'], '26–35': ['hin003', 'hin004'] },
-      Korean: { '19–25': ['kor001', 'kor002'] }
+    "Sad/Angry": {
+      English: {
+        '13–18': ['hLQl3WQQoQ0', 'ZbZSe6N_BXs'],
+        '19–25': ['RgKAFK5djSk'],
+        '26–35': [],
+      },
+      Hindi: {
+        '13–18': ['hin001'],
+        '19–25': ['hin002'],
+      }
+    },
+    Neutral: {
+      Tamil: {
+        '13–18': ['tamN1'],
+        '26–35': ['tamN2']
+      },
+      English: {
+        '13–18': ['7E9Ed9DUQoI'],
+        '19–25': ['JGwWNGJdvx8'],
+      }
+    },
+    Stressed: {
+      Malayalam: {
+        '26–35': ['mal001'],
+      },
+      English: {
+        '13–18': ['vKJ7Hkrr7zQ'],
+        '19–25': ['bwAWN-BWRnA'],
+      }
     }
-    // ...expand as needed
   };
 
   // State for dropdowns and enabling the "Proceed"/quiz
