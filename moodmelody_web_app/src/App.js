@@ -711,44 +711,48 @@ function App() {
                     <div style={{ color: "#FBD46D", fontWeight: 500, marginBottom: 8, marginTop: 30 }}>Loading video...</div>
                   ) : (
                     <>
-                      {videoId ? (
-                        <>
-                          <iframe
-                            title={`YouTube player ${videoId}`}
-                            width="94%"
-                            height="210"
-                            style={{ maxWidth: 350, borderRadius: 12, border: "1.5px solid #FBD46D", boxShadow: "0 2px 8px #0c0e0e30" }}
-                            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
-                            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                          <div style={{
-                            textAlign: "center",
-                            color: "#FBD46D",
-                            fontWeight: 600,
-                            fontSize: "1rem",
-                            marginTop: 10,
-                            marginBottom: 7
-                          }}>
-                            <span style={{ color: "#F76B8A", fontWeight: 700 }}>
-                              YouTube
-                            </span>
-                            {" "}
-                            <a
-                              href={`https://youtu.be/${videoId}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{ color: "#F76B8A", textDecoration: "underline", fontWeight: 700, marginLeft: 6 }}
-                            >
-                              {`Open in YouTube`}
-                            </a>
+                      {
+                        (videoId && isValidYouTubeId(videoId)) ? (
+                          <>
+                            <iframe
+                              title={`YouTube player ${videoId}`}
+                              width="94%"
+                              height="210"
+                              style={{ maxWidth: 350, borderRadius: 12, border: "1.5px solid #FBD46D", boxShadow: "0 2px 8px #0c0e0e30" }}
+                              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
+                              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                            <div style={{
+                              textAlign: "center",
+                              color: "#FBD46D",
+                              fontWeight: 600,
+                              fontSize: "1rem",
+                              marginTop: 10,
+                              marginBottom: 7
+                            }}>
+                              <span style={{ color: "#F76B8A", fontWeight: 700 }}>
+                                YouTube
+                              </span>
+                              {" "}
+                              <a
+                                href={`https://youtu.be/${videoId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ color: "#F76B8A", textDecoration: "underline", fontWeight: 700, marginLeft: 6 }}
+                              >
+                                {`Open in YouTube`}
+                              </a>
+                            </div>
+                          </>
+                        ) : (
+                          <div style={{ color: "#FF8B4D", fontWeight: 500, marginTop: "25px", minHeight: "38px" }}>
+                            {videoId && !isValidYouTubeId(videoId)
+                              ? "This video could not be embedded (invalid or restricted YouTube ID)."
+                              : videoFetchError || 'No video found for your mood/language/age.'}
                           </div>
-                        </>
-                      ) : (
-                        <div style={{ color: "#FF8B4D", fontWeight: 500, marginTop: "25px", minHeight: "38px" }}>
-                          {videoFetchError || 'No video found for your mood/language/age.'}
-                        </div>
-                      )}
+                        )
+                      }
                     </>
                   )}
                 </div>
