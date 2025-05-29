@@ -15,7 +15,7 @@ const videoMap = {
   Excited: ["fJ9rUzIMcZQ", "Fp8msa5uYsc", "ktvTqknDobU", "d-diB65scQU"],
 };
 
-// Moods, emojis, and color accents for buttons
+// Expanded moods with emojis
 const MOODS = [
   { name: "Happy", emoji: "🌞" },
   { name: "Sad", emoji: "😭" },
@@ -29,7 +29,55 @@ const MOODS = [
   { name: "Excited", emoji: "🤩" },
 ];
 
-// Returns a valid random YouTube ID for the given mood
+// Quiz questions—each question has 4 answers with scoring toward moods
+const QUIZ_QUESTIONS = [
+  {
+    question: "How did you feel when you woke up today?",
+    options: [
+      { text: "Ready to conquer the world!", moods: ["Energetic", "Motivated", "Excited"] },
+      { text: "Had a hard time getting up", moods: ["Sad", "Lonely", "Stressed"] },
+      { text: "Calm and peaceful", moods: ["Relaxed", "Happy"] },
+      { text: "Frustrated or annoyed", moods: ["Angry", "Confused"] },
+    ],
+  },
+  {
+    question: "Which describes your mood right now?",
+    options: [
+      { text: "Pumped and lively", moods: ["Energetic", "Excited", "Motivated"] },
+      { text: "A little blue or left out", moods: ["Lonely", "Sad"] },
+      { text: "Chill and easy-going", moods: ["Relaxed", "Happy"] },
+      { text: "Irritated or overwhelmed", moods: ["Stressed", "Angry", "Confused"] },
+    ],
+  },
+  {
+    question: "What kind of activity sounds appealing?",
+    options: [
+      { text: "Dancing or working out", moods: ["Energetic", "Excited"] },
+      { text: "Cuddling up with a book/movie", moods: ["Lonely", "Sad", "Relaxed"] },
+      { text: "Trying something new!", moods: ["Motivated", "Happy", "Excited"] },
+      { text: "Vent or break something!", moods: ["Angry", "Stressed", "Confused"] },
+    ],
+  },
+  {
+    question: "What best matches your thoughts?",
+    options: [
+      { text: "Life is good!", moods: ["Happy", "Motivated"] },
+      { text: "Why is everything so hard today?", moods: ["Stressed", "Angry"] },
+      { text: "Nothing makes sense", moods: ["Confused", "Sad"] },
+      { text: "I'm relaxed and content", moods: ["Relaxed", "Energetic"] },
+    ],
+  },
+  {
+    question: "How are you handling social interactions recently?",
+    options: [
+      { text: "Making new connections easily!", moods: ["Excited", "Happy", "Motivated"] },
+      { text: "Keeping it solo mostly", moods: ["Lonely", "Confused", "Sad"] },
+      { text: "Chilling with old friends", moods: ["Relaxed", "Happy"] },
+      { text: "Getting annoyed by people", moods: ["Stressed", "Angry"] },
+    ],
+  },
+];
+
 // PUBLIC_INTERFACE
 function getRandomVideoIdForMood(mood) {
   const list = videoMap[mood] || [];
@@ -43,48 +91,99 @@ function isValidYouTubeId(id) {
   return typeof id === "string" && /^[A-Za-z0-9_-]{11}$/.test(id);
 }
 
+// PUBLIC_INTERFACE: Get emoji for a mood name
+function emojiForMood(mood) {
+  return (MOODS.find((m) => m.name === mood) || {}).emoji || "🙂";
+}
+
+// PUBLIC_INTERFACE: Shuffle an array
+function shuffle(arr) {
+  let copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+// PUBLIC_INTERFACE: Returns 3 random, unique questions from the pool
+function getRandomQuestions() {
+  return shuffle(QUIZ_QUESTIONS).slice(0, 3);
+}
+
+// PUBLIC_INTERFACE: Determine mood from answers (scoring system)
+function calculateMood(selectedAnswers) {
+  // selectedAnswers shape: [{ moods: ["Energetic","Excited"] }, ...]
+  // Tally points per mood
+  const moodTally = {};
+  selectedAnswers.forEach((answer) => {
+    answer.moods.forEach((m) => {
+      moodTally[m] = (moodTally[m] || 0) + 1;
+    });
+  });
+  // Get highest scoring mood(s)
+  const topScore = Math.max(...Object.values(moodTally));
+  const moodsWithTop = Object.entries(moodTally)
+    .filter(([k, v]) => v === topScore)
+    .map(([k]) => k);
+  // Return a random winning mood if tie
+  return moodsWithTop[Math.floor(Math.random() * moodsWithTop.length)];
+}
+
 function App() {
-  // Local state: currently selected mood & picked video ID
-  const [selectedMood, setSelectedMood] = useState("");
-  const [currentVideoId, setCurrentVideoId] = useState("");
+  // State: quiz
+  const [quizQuestions, setQuizQuestions] = useState(getRandomQuestions());
+  const [selectedIndexes, setSelectedIndexes] = useState(Array(3).fill(null)); // user answer index for each question, null = not picked
+  const [isQuizComplete, setIsQuizComplete] = useState(false);
+  const [detectedMood, setDetectedMood] = useState("");
+  const [videoId, setVideoId] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Button click: handle mood selection and pick video
+  // Reset quiz
   // PUBLIC_INTERFACE
-  const handleMoodPick = (mood) => {
-    setSelectedMood(mood);
-    setLoading(true);
-    // Simulate playful delay (feel fun, smooth)
-    setTimeout(() => {
-      const videoId = getRandomVideoIdForMood(mood);
-      setCurrentVideoId(videoId);
-      setLoading(false);
-    }, 350);
-  };
-
-  // Get mood emoji for playful feedback
-  function emojiForMood(mood) {
-    return (MOODS.find((m) => m.name === mood) || {}).emoji || "🙂";
+  function resetQuiz() {
+    setQuizQuestions(getRandomQuestions());
+    setSelectedIndexes(Array(3).fill(null));
+    setIsQuizComplete(false);
+    setDetectedMood("");
+    setVideoId("");
+    setLoading(false);
   }
 
-  // Play Another! (resets video for same mood, or entire app)
+  // Handle choice
   // PUBLIC_INTERFACE
-  const rePickVideo = () => {
+  function handleSelect(qIdx, answerIdx) {
+    if (isQuizComplete) return;
+    const next = [...selectedIndexes];
+    next[qIdx] = answerIdx;
+    setSelectedIndexes(next);
+    // If quiz is done
+    if (next.every((i) => i !== null)) {
+      // Compute mood and show video
+      setLoading(true);
+      setTimeout(() => {
+        const pickedAnswers = next.map(
+          (ansIdx, i) => quizQuestions[i].options[ansIdx]
+        );
+        const mood = calculateMood(pickedAnswers);
+        setDetectedMood(mood);
+        const vid = getRandomVideoIdForMood(mood);
+        setVideoId(vid);
+        setIsQuizComplete(true);
+        setLoading(false);
+      }, 450);
+    }
+  }
+
+  // PUBLIC_INTERFACE
+  function rePickVideo() {
+    if (!detectedMood) return;
     setLoading(true);
     setTimeout(() => {
-      const videoId = getRandomVideoIdForMood(selectedMood);
-      setCurrentVideoId(videoId);
+      setVideoId(getRandomVideoIdForMood(detectedMood));
       setLoading(false);
-    }, 300);
-  };
-
-  // Change mood (reset UI)
-  // PUBLIC_INTERFACE
-  const resetAll = () => {
-    setSelectedMood("");
-    setCurrentVideoId("");
-    setLoading(false);
-  };
+    }, 330);
+  }
 
   return (
     <div
@@ -134,7 +233,7 @@ function App() {
             alignItems: "center",
           }}
         >
-          {!selectedMood && (
+          {!isQuizComplete && (
             <>
               <div
                 className="subtitle"
@@ -146,7 +245,7 @@ function App() {
                   fontSize: "1.12rem",
                 }}
               >
-                Select your mood and we'll play a video that fits!
+                Answer these to find your mood's melody!
               </div>
               <h1
                 className="title"
@@ -159,69 +258,84 @@ function App() {
                   letterSpacing: ".01em",
                 }}
               >
-                How are you feeling?<span style={{ fontSize: "1.24em", marginLeft: 10 }}>🎵</span>
+                Mood Quiz <span style={{ fontSize: "1.24em", marginLeft: 10 }}>🎵</span>
               </h1>
               <div
                 className="description"
                 style={{
                   textAlign: "center",
                   color: "rgba(255,255,255,0.85)",
-                  marginBottom: "28px",
+                  marginBottom: "20px",
                   fontSize: "1.09rem",
                   fontWeight: 500,
-                  lineHeight: "1.7",
+                  lineHeight: "1.56",
                 }}
               >
-                Ten moods, ten vibes. Click a mood and get a musical match instantly!
+                We'll ask you 3 quick questions to sense your vibe, then play a song that fits!
               </div>
-              <div
-                className="mood-btns"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(2, 1fr)",
-                  gap: "13px 17px",
-                  width: "100%",
-                  marginBottom: 13,
-                  maxWidth: 370,
-                }}
-              >
-                {MOODS.map((mood) => (
-                  <button
-                    key={mood.name}
-                    className="btn mood-btn"
-                    type="button"
-                    onClick={() => handleMoodPick(mood.name)}
+              <form style={{ width: "100%", marginBottom: 9 }}>
+                {quizQuestions.map((q, qIdx) => (
+                  <div
+                    key={q.question}
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 13,
-                      background: "linear-gradient(99deg, #FBD46D 60%, #F76B8A 100%)",
-                      color: "#18191D",
-                      fontWeight: 600,
-                      fontSize: "1.09em",
-                      padding: "16px 6px 10px 6px",
-                      minWidth: 102,
-                      minHeight: 64,
-                      cursor: "pointer",
-                      border: "none",
-                      transition: "box-shadow 0.12s, background 0.1s",
-                      boxShadow: "0 2px 10px #FBD46D29",
+                      marginBottom: 20,
+                      background: "#232527",
+                      borderRadius: 10,
+                      padding: "14px 10px 8px 14px",
                     }}
                   >
-                    <span style={{ fontSize: "1.72em", marginBottom: 2 }}>{mood.emoji}</span>
-                    {mood.name}
-                  </button>
+                    <div
+                      style={{
+                        color: "#FBD46D",
+                        fontWeight: 700,
+                        marginBottom: 8,
+                        fontSize: "1.08rem",
+                        textAlign: "left",
+                      }}
+                    >
+                      Q{qIdx + 1}. {q.question}
+                    </div>
+                    <div style={{display:"flex", flexDirection:"column", gap:7}}>
+                      {q.options.map((opt, oIdx) => (
+                        <button
+                          key={opt.text}
+                          type="button"
+                          className="btn"
+                          style={{
+                            background: selectedIndexes[qIdx] === oIdx
+                              ? "linear-gradient(99deg, #F76B8A 0%, #FBD46D 85%)"
+                              : "linear-gradient(99deg, #FBD46D 60%, #F76B8A 100%)",
+                            color: "#18191D",
+                            fontWeight: 600,
+                            borderRadius: 8,
+                            fontSize: "1.03em",
+                            border: selectedIndexes[qIdx] === oIdx ? "2.5px solid #F76B8A" : "none",
+                            boxShadow: selectedIndexes[qIdx] === oIdx ? "0 0px 8px #F76B8A60" : "0 2px 8px #FBD46D29",
+                            opacity: loading ? 0.6 : 1,
+                            pointerEvents: loading ? "none" : "auto"
+                          }}
+                          disabled={loading}
+                          onClick={() => handleSelect(qIdx, oIdx)}
+                        >
+                          {opt.text}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 ))}
+              </form>
+              <div style={{ color: "#F76B8A", fontSize: "1.04rem", marginTop: 13 }}>
+                Powered by YouTube. Song video opens below.
               </div>
-              <div style={{ color: "#F76B8A", fontSize: "1.04rem", marginTop: 23 }}>
-                Powered by YouTube. Videos open below ⬇️
-              </div>
+              {loading && (
+                <div style={{ marginTop: 32, color: "#FBD46D", fontWeight: 600 }}>
+                  Analyzing your answers...
+                </div>
+              )}
             </>
           )}
 
-          {selectedMood && (
+          {isQuizComplete && (
             <div style={{ width: "100%", textAlign: "center" }}>
               <div
                 style={{
@@ -236,9 +350,9 @@ function App() {
                   gap: 2,
                 }}
               >
-                <span style={{ fontSize: "2em" }}>{emojiForMood(selectedMood)}</span>
+                <span style={{ fontSize: "2em" }}>{emojiForMood(detectedMood)}</span>
                 <span>
-                  Your Mood:{" "}
+                  You seem:{" "}
                   <span
                     style={{
                       background: "linear-gradient(97deg, #FBD46D 47%, #F76B8A 100%)",
@@ -250,15 +364,16 @@ function App() {
                       padding: "0 3px",
                     }}
                   >
-                    {selectedMood}
+                    {detectedMood}
                   </span>
                 </span>
               </div>
+              
               <div
                 className="video-container"
                 style={{
-                  marginTop: 4,
-                  marginBottom: 10,
+                  marginTop: 8,
+                  marginBottom: 12,
                   width: "100%",
                   display: "flex",
                   flexDirection: "column",
@@ -267,13 +382,13 @@ function App() {
               >
                 {loading ? (
                   <div style={{ color: "#FBD46D", fontWeight: 600, margin: "27px 0 24px" }}>
-                    Finding a video for you...
+                    Finding a new video for you...
                   </div>
-                ) : isValidYouTubeId(currentVideoId) ? (
+                ) : isValidYouTubeId(videoId) ? (
                   <>
                     <iframe
                       className="video-embed"
-                      title={`YouTube player ${currentVideoId}`}
+                      title={`YouTube player ${videoId}`}
                       width="96%"
                       height="219"
                       style={{
@@ -285,13 +400,13 @@ function App() {
                         margin: "0 auto 7px auto",
                         display: "block",
                       }}
-                      src={`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&rel=0`}
+                      src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
                       allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                     />
                     <div style={{ marginBottom: 12 }}>
                       <a
-                        href={`https://youtu.be/${currentVideoId}`}
+                        href={`https://youtu.be/${videoId}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
@@ -314,9 +429,9 @@ function App() {
                       margin: "22px 0",
                     }}
                   >
-                    {currentVideoId
+                    {videoId
                       ? "This video could not be embedded. Try again!"
-                      : "No video found for this mood."}
+                      : "No song found for this mood."}
                   </div>
                 )}
               </div>
@@ -341,7 +456,7 @@ function App() {
                 </button>
                 <button
                   className="btn btn-large"
-                  onClick={resetAll}
+                  onClick={resetQuiz}
                   style={{
                     background: "linear-gradient(90deg, #F76B8A 45%, #FBD46D 98%)",
                     color: "#161616",
@@ -355,7 +470,7 @@ function App() {
                   }}
                   disabled={loading}
                 >
-                  Choose Mood
+                  Try Again
                 </button>
               </div>
             </div>
