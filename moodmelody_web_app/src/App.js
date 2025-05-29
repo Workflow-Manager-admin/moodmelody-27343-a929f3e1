@@ -335,32 +335,35 @@ function App() {
           ) : (
             // Result card
             <>
-              <div style={{ width: "100%" }}>
-                {resultMood && resultSong && (
-                  <>
+              {(() => {
+                // Already selected mood and song (from handleSubmit)
+                const mood = resultMood;
+                const song = resultSong;
+                return (
+                  <div style={{ width: "100%" }}>
                     <div
                       style={{
                         textAlign: "center",
                         marginBottom: 8,
                         fontSize: "1.14rem",
-                        color: resultMood.color,
+                        color: mood?.color,
                         fontWeight: 600,
                         letterSpacing: ".18rem"
                       }}
                     >
-                      {resultMood.name === "Happy" && "🌞"}
-                      {resultMood.name === "Neutral" && "😊"}
-                      {resultMood.name === "Stressed" && "😓"}
-                      {resultMood.name === "Sad/Angry" && "😭"}
+                      {mood?.name === "Happy" && "🌞"}
+                      {mood?.name === "Neutral" && "😊"}
+                      {mood?.name === "Stressed" && "😓"}
+                      {mood?.name === "Sad/Angry" && "😭"}
                       &nbsp;Your Mood:&nbsp;
                       <span style={{
-                        background: `linear-gradient(99deg, ${resultMood.color} 40%, #fff 100%)`,
+                        background: `linear-gradient(99deg, ${mood?.color} 40%, #fff 100%)`,
                         WebkitBackgroundClip: 'text',
                         color: 'transparent',
                         WebkitTextFillColor: 'transparent',
                         fontWeight: 700,
                         fontSize: "1.13em"
-                      }}>{resultMood.name}</span>
+                      }}>{mood?.name}</span>
                     </div>
                     <div style={{
                       color: "rgba(255,255,255,0.93)",
@@ -371,62 +374,72 @@ function App() {
                       paddingBottom: 6,
                       minHeight: "46px"
                     }}>
-                      {resultMood.message}
+                      {mood?.message}
                     </div>
                     <div style={{
                       display: 'flex', flexDirection: 'column', alignItems: 'center', margin: "18px auto 12px auto"
                     }}>
-                      {/* YouTube video embed for selected song */}
-                      <iframe
-                        title={`YouTube player ${resultSong.youtubeId}`}
-                        width="94%"
-                        height="210"
-                        style={{ maxWidth: 350, borderRadius: 12, border: "1.5px solid #FBD46D", boxShadow: "0 2px 8px #0c0e0e30" }}
-                        src={`https://www.youtube.com/embed/${resultSong.youtubeId}?autoplay=1&rel=0`}
-                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                      <div style={{
-                        textAlign: "center",
-                        color: "#FBD46D",
-                        fontWeight: 600,
-                        fontSize: "1rem",
-                        marginTop: 10,
-                        marginBottom: 7
-                      }}>
-                        {`Now Playing: `}
-                        <span style={{ color: "#F76B8A", fontWeight: 700 }}>{resultSong.title}</span>
-                        {` · `}
-                        <a
-                          href={`https://youtu.be/${resultSong.youtubeId}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ color: "#F76B8A", textDecoration: "underline", fontWeight: 700 }}
-                        >
-                          Watch on YouTube
-                        </a>
-                      </div>
+                      {/* YouTube video embed */}
+                      {song ? (
+                        <>
+                          <iframe
+                            title={`YouTube player ${song.youtubeId}`}
+                            width="94%"
+                            height="210"
+                            style={{ maxWidth: 350, borderRadius: 12, border: "1.5px solid #FBD46D", boxShadow: "0 2px 8px #0c0e0e30" }}
+                            src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&rel=0`}
+                            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                          <div style={{
+                            textAlign: "center",
+                            color: "#FBD46D",
+                            fontWeight: 600,
+                            fontSize: "1rem",
+                            marginTop: 10,
+                            marginBottom: 7
+                          }}>
+                            {`Listen: `}
+                            <span style={{ color: "#F76B8A", fontWeight: 700 }}>
+                              {song.title}
+                            </span>
+                            {" "}
+                            <a
+                              href={`https://youtu.be/${song.youtubeId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ color: "#F76B8A", textDecoration: "underline", fontWeight: 700, marginLeft: 6 }}
+                            >
+                              YouTube
+                            </a>
+                          </div>
+                        </>
+                      ) : (
+                        <div style={{ color: "#FF8B4D", fontWeight: 500, margin: "20px 0" }}>
+                          No song found for this mood.
+                        </div>
+                      )}
                     </div>
-                  </>
-                )}
-                <button
-                  className="btn btn-large"
-                  onClick={handleRetry}
-                  style={{
-                    width: "100%",
-                    background: "linear-gradient(90deg, #FBD46D 50%, #F76B8A 98%)",
-                    color: "#161616",
-                    fontWeight: 700,
-                    fontSize: "1.08rem",
-                    border: "none",
-                    borderRadius: 8,
-                    marginTop: 7,
-                    padding: "13px 2px"
-                  }}
-                >
-                  Try Again
-                </button>
-              </div>
+                    <button
+                      className="btn btn-large"
+                      onClick={handleRetry}
+                      style={{
+                        width: "100%",
+                        background: "linear-gradient(90deg, #FBD46D 50%, #F76B8A 98%)",
+                        color: "#161616",
+                        fontWeight: 700,
+                        fontSize: "1.08rem",
+                        border: "none",
+                        borderRadius: 8,
+                        marginTop: 7,
+                        padding: "13px 2px"
+                      }}
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                );
+              })()}
             </>
           )}
         </div>
