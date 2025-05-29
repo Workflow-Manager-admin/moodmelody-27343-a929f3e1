@@ -147,13 +147,14 @@ function detectMood(totalScore) {
   return moodData[1];
 }
 
-// PUBLIC_INTERFACE
 function App() {
-  // State for 3 randomized questions, answers, UI step, etc.
+  // State for 3 randomized questions, answers, UI step, score, and chosen song.
   const [questions, setQuestions] = useState(shuffleArray(questionPool).slice(0, 3));
   const [answers, setAnswers] = useState([null, null, null]);
   const [step, setStep] = useState(0); // 0=quiz, 1=results
   const [score, setScore] = useState(null);
+  const [resultMood, setResultMood] = useState(null); // The detected mood object after quiz
+  const [resultSong, setResultSong] = useState(null); // Randomly chosen song for mood
 
   // PUBLIC_INTERFACE
   // Handle answer selection
@@ -170,7 +171,11 @@ function App() {
     const totalScore = answers.reduce((acc, ansIdx, qIdx) =>
       acc + (questions[qIdx].options[ansIdx]?.value || 0)
     , 0);
+    const mood = detectMood(totalScore);
+    const song = getRandomSongForMood(mood.name);
     setScore(totalScore);
+    setResultMood(mood);
+    setResultSong(song);
     setStep(1);
   }
 
@@ -181,6 +186,8 @@ function App() {
     setAnswers([null, null, null]);
     setStep(0);
     setScore(null);
+    setResultMood(null);
+    setResultSong(null);
   }
 
   // UI THEME: colors to CSS variables
