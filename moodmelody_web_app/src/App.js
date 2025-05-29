@@ -354,7 +354,7 @@ function App() {
   }
 
   // PUBLIC_INTERFACE
-  // On quiz submit, detect mood, POST to /get-video, render result card with iframe
+  // On quiz submit, detect mood, render result card with iframe using local videoMap-based random selection
   async function handleSubmit() {
     const totalScore = answers.reduce((acc, ansIdx, qIdx) =>
       acc + (questions[qIdx].options[ansIdx]?.value || 0)
@@ -390,59 +390,40 @@ function App() {
       }
     }
 
-    // Attempt backend video selection API
+    // --- New: Select video from local videoMap object directly, frontend-only logic ---
+    let pickedVideoId = null;
+    let errorMsg = "";
     try {
-      const resp = await fetch('/get-video', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mood: mood.name, language, ageGroup })
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data.videoId) {
-          // Now check if the videoId is embeddable (not just syntactically valid)
-          if (await isEmbeddableYouTube(data.videoId)) {
-            setVideoId(data.videoId);
-          } else {
-            setVideoId('');
-            setVideoFetchError('The selected video cannot be embedded—choose another mood or try again!');
-          }
-        } else {
-          setVideoId('');
-          setVideoFetchError('No video found for your selection.');
-        }
-      } else {
-        setVideoFetchError('Video API error: ' + resp.statusText);
-        setVideoId('');
+      const moodBranch = videoMap[mood.name] || {};
+      const langBranch = moodBranch[language] || {};
+      const videoOptions = langBranch[ageGroup] || [];
+      // Select at random
+      pickedVideoId = videoOptions.length
+        ? videoOptions[Math.floor(Math.random() * videoOptions.length)]
+        : null;
+
+      if (!pickedVideoId) {
+        errorMsg = 'No video found for your mood/language/age.';
+      } else if (!(await isEmbeddableYouTube(pickedVideoId))) {
+        // Check if the chosen video is embeddable
+        errorMsg = 'The selected video cannot be embedded. Please try again or choose different mood/age/language.';
+        pickedVideoId = null;
       }
-    } catch (ex) {
-      // Fallback: try local videoMap logic only for demonstration (no real backend)
-      const videoIdFallback = (() => {
-        const moodSet = videoMap[mood.name] || {};
-        const langSet = moodSet[language] || {};
-        const groupArr = langSet[ageGroup] || [];
-        if (groupArr.length > 0) {
-          return groupArr[Math.floor(Math.random() * groupArr.length)];
-        }
-        return null;
-      })();
-      if (videoIdFallback) {
-        // Check if the fallback videoId is embeddable
-        if (await isEmbeddableYouTube(videoIdFallback)) {
-          setVideoId(videoIdFallback);
-          setVideoFetchError('');
-        } else {
-          setVideoId('');
-          setVideoFetchError('Fallback video is not embeddable. Please try a different selection.');
-        }
-      } else {
-        setVideoFetchError('No video found for your selection (offline fallback).');
-        setVideoId('');
-      }
-    } finally {
-      setVideoLoading(false);
-      setCurrentStep(2);
+    } catch (err) {
+      errorMsg = 'Error looking up video for your selection.';
+      pickedVideoId = null;
     }
+
+    if (pickedVideoId) {
+      setVideoId(pickedVideoId);
+      setVideoFetchError('');
+    } else {
+      setVideoId('');
+      setVideoFetchError(errorMsg);
+    }
+
+    setVideoLoading(false);
+    setCurrentStep(2);
   }
 
   // PUBLIC_INTERFACE
