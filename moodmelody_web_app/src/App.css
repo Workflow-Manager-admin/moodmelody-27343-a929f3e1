@@ -15,7 +15,8 @@ body {
   margin: 0;
   font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
   /* Set a fixed background image that covers the viewport */
-  background: url('/assets/20250529_142231_img2.jpg') no-repeat center center fixed;
+  /* Correct absolute path for React public assets: the URL is relative to the /public folder */
+  background: url("/assets/20250529_142231_img2.jpg") no-repeat center center fixed;
   background-size: cover;
   background-attachment: fixed;
   background-blend-mode: darken;

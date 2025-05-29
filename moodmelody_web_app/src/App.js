@@ -299,10 +299,10 @@ function App() {
     const updatedHistory = storeMoodToHistory(mood.name);
     setMoodHistory(updatedHistory);
 
-    // Color background for mood
+    // Color background for mood (now only updates card bg, body bg is managed by global CSS)
     const bg = getBackgroundForMood(mood.name);
     setBgStyle({ background: bg, transition: "background 0.8s" });
-    document.body.style.background = bg;
+    // document.body.style.background = bg;
 
     // Helper: check if YouTube video is actually embeddable/public
     async function isEmbeddableYouTube(videoId) {
