@@ -33,3 +33,18 @@ src/MoodMelody.js
   Line 201:13:  Duplicate key 'letterSpacing'  no-dupe-keys
 
 webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/MoodMelody.js
+  Line 201:13:  Duplicate key 'letterSpacing'  no-dupe-keys
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/MoodMelody.js
+  Line 201:13:  Duplicate key 'letterSpacing'  no-dupe-keys
+
+webpack compiled with 1 warning
